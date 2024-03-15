@@ -1,14 +1,14 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
-const Viewer2D = () => {
+export const Viewer2D = () => {
   const containerRef = useRef<any>();
 
   useEffect(() => {
-    // Crear la escena
+    // Create scene
     const scene = new THREE.Scene();
 
-    // Crear la cámara ortográfica (2D)
+    // Create orthographic cam (2D)
     const camera = new THREE.OrthographicCamera(
       -window.innerWidth / 2,
       window.innerWidth / 2,
@@ -31,6 +31,7 @@ const Viewer2D = () => {
     const square = new THREE.Mesh(geometry, material);
     scene.add(square);
 
+    
     // Animación
     const animate = () => {
       requestAnimationFrame(animate);
@@ -58,5 +59,3 @@ const Viewer2D = () => {
 
   return <div ref={containerRef} />;
 };
-
-export default Viewer2D;
