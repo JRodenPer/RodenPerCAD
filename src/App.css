@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+/* Estilos para el tema claro */
+.light {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* Estilos para el tema oscuro */
+.dark {
+  background-color: #333;
+  color: #f0f0f0;
+}

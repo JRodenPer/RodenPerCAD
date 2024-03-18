@@ -1,14 +1,17 @@
-import React from 'react';
-import './App.css';
-import { CadComponent } from './cad/components/cadComponent';
+import React from "react";
+import "./App.css";
+import { useTheme } from "./cad/components/test2";
+import { CadComponent } from "./cad/components/cadComponent";
 
-function App() {
+const App: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
+
   return (
-    <div className="App">
+    <div>
       WORK IN PROGRESS
-      <CadComponent/>
+      <CadComponent />
     </div>
   );
-}
+};
 
 export default App;
