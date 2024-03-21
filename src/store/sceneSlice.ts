@@ -2,22 +2,22 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as THREE from "three";
 
 interface SceneState {
-  scene: THREE.Scene | null;
+  id: string;
 }
 
 const initialState: SceneState = {
-  scene: null,
+  id: '',
 };
 
 const sceneSlice = createSlice({
   name: "scene",
   initialState,
   reducers: {
-    setScene: (state, action: PayloadAction<THREE.Scene>) => {
-      state.scene = action.payload;
+    setScene: (state, action: PayloadAction<string>) => {
+      state.id = action.payload;
     },
     clearScene: (state) => {
-      state.scene = null;
+      state.id = '';
     },
   },
 });

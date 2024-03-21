@@ -10,6 +10,9 @@ import ThemeProvider from "./cad/components/test2";
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
+(window as any).store = store;
+
 root.render(
   <Provider store={store}>
     <ThemeProvider>

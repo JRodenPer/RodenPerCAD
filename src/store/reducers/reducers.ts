@@ -1,5 +1,5 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import sceneReducer from "../scene/slice";
+import sceneReducer from "../sceneSlice";
 
 export const rootReducer = combineReducers({
   scene: sceneReducer,

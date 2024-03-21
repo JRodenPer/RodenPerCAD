@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { RootState } from "../../../store/reducers";
+import { useScene } from "../sceneContext";
+import * as S from "./viewer.styles";
 
 interface viewerProps {
   type: "2D" | "3D";
@@ -12,14 +12,12 @@ export const Viewer = (props: viewerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const previousMousePosition = useRef({ x: 0, y: 0 });
   const shiftKeyPressed = useRef(false);
-  const scene = useSelector((state: RootState) => state.scene.scene);
+  const scene = useScene();
 
   useEffect(() => {
     if (!scene) return;
 
-    let renderer: THREE.WebGLRenderer,
-      square: THREE.Mesh,
-      gridHelper: THREE.GridHelper;
+    let renderer: THREE.WebGLRenderer;
     let isDragging = false;
 
     // Create camera
@@ -40,7 +38,7 @@ export const Viewer = (props: viewerProps) => {
         );
 
     if (is2D) {
-      camera.position.set(0, 0, 10);
+      camera.position.set(0, 10, 0);
       camera.lookAt(scene.position);
     } else {
       camera.position.z = 5;
@@ -52,18 +50,6 @@ export const Viewer = (props: viewerProps) => {
     if (containerRef.current) {
       containerRef.current.appendChild(renderer.domElement);
     }
-
-    // Crear un grid de fondo
-    const size = 10;
-    const divisions = 10;
-    gridHelper = new THREE.GridHelper(size, divisions);
-    scene.add(gridHelper);
-
-    // Crear un cuadrado
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    square = new THREE.Mesh(geometry, material);
-    scene.add(square);
 
     // Eventos de ratón / táctiles
     const handleMouseDown = (event: MouseEvent | TouchEvent) => {
@@ -96,10 +82,16 @@ export const Viewer = (props: viewerProps) => {
         const deltaY = mouseY - previousMousePosition.current.y;
         previousMousePosition.current = { x: mouseX, y: mouseY };
         if (!shiftKeyPressed.current) {
-          square.rotation.x += deltaY * 0.01;
-          square.rotation.y += deltaX * 0.01;
-          gridHelper.rotation.x += deltaY * 0.01;
-          gridHelper.rotation.y += deltaX * 0.01;
+          /*scene.children.forEach((item) => {
+            item.rotation.x += deltaY * 0.01;
+            item.rotation.y += deltaX * 0.01;
+            item.rotation.z += deltaX * 0.01;
+          });*/
+          if (is2D) camera.rotation.z -= (deltaX - deltaY) * 0.005;
+          else {
+            camera.rotation.x += deltaY * 0.01;
+            camera.rotation.y += deltaX * 0.01;
+          }
         } else {
           camera.position.x -= deltaX * 0.01;
           camera.position.y += deltaY * 0.01;
@@ -125,8 +117,13 @@ export const Viewer = (props: viewerProps) => {
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
-      const zoomSpeed = 0.1;
-      camera.position.z += event.deltaY * zoomSpeed;
+      if (event.deltaY > 0) camera.zoom -= 0.1;
+      else camera.zoom += 0.1;
+
+      // Limitar el zoom mínimo y máximo (ajústalo según tus necesidades)
+      camera.zoom = Math.max(0.1, Math.min(10.0, camera.zoom));
+
+      camera.updateProjectionMatrix();
     };
 
     renderer.domElement.addEventListener("mousedown", handleMouseDown);
@@ -164,5 +161,9 @@ export const Viewer = (props: viewerProps) => {
     };
   }, [scene]);
 
-  return <div ref={containerRef} />;
+  return (
+    <S.Container>
+      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+    </S.Container>
+  );
 };
