@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { TransformControls } from "three/examples/jsm//controls/TransformControls";
 import { useScene } from "../sceneContext";
 import * as S from "./viewer.styles";
+import Camera from "../../scene/camera";
 
 interface viewerProps {
   type: "2D" | "3D";
@@ -17,6 +20,80 @@ export const Viewer = (props: viewerProps) => {
   useEffect(() => {
     if (!scene) return;
 
+    const camera = new Camera(props.type);
+    scene.addCamera(camera, { x: 0, y: 250, z: 1000 });
+
+    const renderer = scene.renderer;
+
+    if (containerRef.current && renderer) {
+      containerRef.current.appendChild(renderer.domElement);
+    }
+
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshLambertMaterial({
+      color: Math.random() * 0xffffff,
+    });
+    const square = new THREE.Mesh(geometry, material);
+    square.castShadow = true;
+    square.receiveShadow = true;
+    scene.addElement(square);
+
+    // Crear OrbitControls y asociarlos a la cámara
+    if (scene.renderer && scene.camera) {
+      const controls = new OrbitControls(
+        scene.camera.camInstance,
+        scene.renderer.domElement
+      );
+
+      // Configurar la posición inicial de la cámara
+      scene.camera.camInstance.position.set(0, 0, 5);
+      controls.update();
+
+      // Agregar controles de transformación al objeto
+      const transformControls = new TransformControls(
+        scene.camera.camInstance,
+        scene.renderer.domElement
+      );
+      transformControls.attach(square);
+      scene.scene.add(transformControls);
+    }
+    // Animación
+    const animate = () => {
+      requestAnimationFrame(animate);
+      if (scene.renderer && scene.camera)
+        scene.renderer.render(scene.scene, scene.camera.camInstance);
+    };
+
+    animate();
+
+    /*// Controls
+    if (scene.renderer && scene.camera) {
+      const controls = new OrbitControls(
+        scene.camera.camInstance,
+        scene.renderer.domElement
+      );
+      //controls.damping = 0.2;
+      controls.addEventListener("change", animate);
+
+      const transformControl = new TransformControls(
+        scene.camera.camInstance,
+        scene.renderer.domElement
+      );
+      transformControl.addEventListener("change", animate);
+      transformControl.addEventListener("dragging-changed", function (event) {
+        controls.enabled = !event.value;
+      });
+      scene.scene.add(transformControl);
+    }*/
+
+    // Limpieza
+    return () => {
+      if (renderer && renderer.domElement && containerRef.current) {
+        containerRef.current.removeChild(renderer.domElement);
+      }
+    };
+
+    /*
     let renderer: THREE.WebGLRenderer;
     let isDragging = false;
 
@@ -82,11 +159,11 @@ export const Viewer = (props: viewerProps) => {
         const deltaY = mouseY - previousMousePosition.current.y;
         previousMousePosition.current = { x: mouseX, y: mouseY };
         if (!shiftKeyPressed.current) {
-          /*scene.children.forEach((item) => {
-            item.rotation.x += deltaY * 0.01;
-            item.rotation.y += deltaX * 0.01;
-            item.rotation.z += deltaX * 0.01;
-          });*/
+          //scene.children.forEach((item) => {
+          //  item.rotation.x += deltaY * 0.01;
+          //  item.rotation.y += deltaX * 0.01;
+          //  item.rotation.z += deltaX * 0.01;
+          //});
           if (is2D) camera.rotation.z -= (deltaX - deltaY) * 0.005;
           else {
             camera.rotation.x += deltaY * 0.01;
@@ -158,7 +235,7 @@ export const Viewer = (props: viewerProps) => {
       renderer.domElement.removeEventListener("wheel", handleWheel);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-    };
+    };*/
   }, [scene]);
 
   return (

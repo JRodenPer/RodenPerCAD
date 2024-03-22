@@ -1,8 +1,8 @@
 import React, { createContext, useContext } from "react";
-import * as THREE from "three";
+import { Scene } from "../../scene";
 
 interface SceneContextProps extends React.PropsWithChildren {
-  scene: THREE.Scene | undefined;
+  scene: Scene | undefined;
 }
 
 const SceneContext = createContext<SceneContextProps | undefined>(undefined);
